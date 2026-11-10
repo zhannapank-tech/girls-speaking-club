@@ -3,7 +3,7 @@
  *
  * Paste this into the Google Sheet's Apps Script editor (Extensions → Apps Script)
  * and deploy it as a Web app. Each visit and each Telegram button click on the
- * landing page adds one row to the "Events" tab.
+ * landing page adds one row to the "Tracking S.Club Funnel" tab.
  *
  * Columns: time | event | button | source | visitor | lang | referrer | page
  *   event   – "visit" or "cta_click"
@@ -12,7 +12,9 @@
  *   visitor – random anonymous id stored in the visitor's browser (counts unique people)
  */
 
-const SHEET_NAME = 'Events';
+const SHEET_NAME = 'Tracking S.Club Funnel';
+// The tab is found by its ID first, so renaming it later doesn't break tracking.
+const SHEET_ID = 694894671;
 const HEADERS = ['time', 'event', 'button', 'source', 'visitor', 'lang', 'referrer', 'page'];
 const EVENTS = ['visit', 'cta_click'];
 
@@ -45,14 +47,15 @@ function doGet() {
   return ok_();
 }
 
-// Run once from the editor (select "setup" → Run) to create the Events tab.
+// Run once from the editor (select "setup" → Run) to create the tracking tab.
 function setup() {
   getSheet_();
 }
 
 function getSheet_() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let sh = ss.getSheetByName(SHEET_NAME);
+  let sh = ss.getSheets().filter(function (s) { return s.getSheetId() === SHEET_ID; })[0]
+    || ss.getSheetByName(SHEET_NAME);
   if (!sh) {
     sh = ss.insertSheet(SHEET_NAME);
     sh.appendRow(HEADERS);
