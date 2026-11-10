@@ -688,7 +688,7 @@ h1 {
     <p class="lead"><span data-i18n="t3">Женский разговорный клуб в Zoom для уровня A1–B1. Каждое воскресенье 90 минут практики, где можно ошибаться и говорить как есть.</span></p>
 
     <div class="cta-block" id="cta-hero">
-      <a class="btn" href="https://t.me/jannaspeaks_bot">
+      <a class="btn" data-cta="hero" href="https://t.me/jannaspeaks_bot">
         <span data-i18n="btn">Записаться на бесплатную встречу</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </a>
@@ -911,7 +911,7 @@ h1 {
       <p class="single"><span data-i18n="t93">Разовая встреча — 1 700 ₽ / €17</span></p>
       <p class="pnote"><span data-i18n="t94">Пакет выбираешь после бесплатной встречи. Пропустила воскресенье? Встреча не сгорает.</span></p>
       <div class="cta-block narrow">
-        <a class="btn" href="https://t.me/jannaspeaks_bot">
+        <a class="btn" data-cta="prices" href="https://t.me/jannaspeaks_bot">
           <span data-i18n="btn">Записаться на бесплатную встречу</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </a>
@@ -929,7 +929,7 @@ h1 {
           <summary><span data-i18n="t97">Мой английский совсем слабый. Мне можно?</span></summary>
           <div class="ans">
             <p><span data-i18n="t98">Клуб подойдёт, если твой уровень от A1. Пары фраз о себе для этого мало. Не уверена в своём английском? Просто запиши нам голосовое сообщение в Telegram, и мы поможем понять, подходит ли тебе клуб. А если пока рано, у нас есть курс в мини-группах и индивидуальные занятия.</span></p>
-            <p><a class="text-link" href="https://t.me/jannaenglish?text=Hi%21%20I%27d%20like%20to%20check%20my%20level%20for%20the%20Speaking%20Club%20%F0%9F%99%82"><span data-i18n="t99">Написать нам в Telegram</span></a></p>
+            <p><a class="text-link" data-cta="faq-level" href="https://t.me/jannaenglish?text=Hi%21%20I%27d%20like%20to%20check%20my%20level%20for%20the%20Speaking%20Club%20%F0%9F%99%82"><span data-i18n="t99">Написать нам в Telegram</span></a></p>
           </div>
         </details>
         <details id="faq-others">
@@ -964,7 +964,7 @@ h1 {
           <li><span data-i18n="t111">Тебе придёт сообщение в Telegram с датой и ссылкой на бесплатную встречу.</span></li>
         </ol>
         <div class="cta-block">
-          <a class="btn" href="https://t.me/jannaspeaks_bot">
+          <a class="btn" data-cta="final" href="https://t.me/jannaspeaks_bot">
             <span data-i18n="btn">Записаться на бесплатную встречу</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </a>
@@ -981,7 +981,7 @@ h1 {
 </footer>
 
 <div class="sticky" id="sticky">
-  <a class="btn" tabindex="-1" href="https://t.me/jannaspeaks_bot">
+  <a class="btn" data-cta="sticky" tabindex="-1" href="https://t.me/jannaspeaks_bot">
     <span data-i18n="btn">Записаться на бесплатную встречу</span>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
   </a>
@@ -1032,6 +1032,44 @@ h1 {
     link.tabIndex = show ? 0 : -1;
   });
   blocks.forEach(function (b) { io.observe(b); });
+})();
+
+(function () {
+  /* Funnel tracking: logs visits and Telegram button clicks to a Google Sheet (see tracking/README.md) */
+  var ENDPOINT = 'https://script.google.com/macros/s/AKfycbynkIepj0nxc11nFxpUt5e_n-TH0gI74Ov3P6Frbe6wSN4z6uL-0K6u3VDqU-M-rDbP/exec';
+  if (ENDPOINT.indexOf('https://script.google.com/') !== 0) return;
+
+  var params = new URLSearchParams(location.search);
+  var ref = document.referrer || '';
+  var source = params.get('ref') || params.get('utm_source') || '';
+  if (!source) {
+    if (/instagram\.com/i.test(ref)) source = 'ig';
+    else if (ref) { try { source = new URL(ref).hostname; } catch (e) { source = 'other'; } }
+    else source = 'direct';
+  }
+
+  var visitor = '';
+  try {
+    visitor = localStorage.getItem('gsc-vid') || '';
+    if (!visitor) { visitor = Math.random().toString(36).slice(2, 12); localStorage.setItem('gsc-vid', visitor); }
+  } catch (e) {}
+
+  function send(event, cta) {
+    var body = JSON.stringify({
+      event: event, cta: cta || '', source: source, visitor: visitor,
+      lang: document.documentElement.lang, referrer: ref, page: location.pathname
+    });
+    try {
+      fetch(ENDPOINT, { method: 'POST', mode: 'no-cors', keepalive: true, headers: { 'Content-Type': 'text/plain' }, body: body });
+    } catch (e) {
+      if (navigator.sendBeacon) navigator.sendBeacon(ENDPOINT, body);
+    }
+  }
+
+  send('visit');
+  Array.prototype.slice.call(document.querySelectorAll('[data-cta]')).forEach(function (a) {
+    a.addEventListener('click', function () { send('cta_click', a.getAttribute('data-cta')); });
+  });
 })();
 </script>
 </body>
