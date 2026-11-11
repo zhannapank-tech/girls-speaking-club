@@ -15,7 +15,7 @@
 const SHEET_NAME = 'Tracking S.Club Funnel';
 // The tab is found by its ID first, so renaming it later doesn't break tracking.
 const SHEET_ID = 694894671;
-const HEADERS = ['time', 'event', 'button', 'source', 'visitor', 'lang', 'referrer', 'page', 'username'];
+const HEADERS = ['time', 'event', 'button', 'source', 'visitor', 'lang', 'referrer', 'page', 'username', 'goal', 'hardest', 'years', 'understanding'];
 // visit, cta_click: from the landing page. bot_*/trial_*: from the ChatPlace Telegram bot.
 const EVENTS = ['visit', 'cta_click', 'bot_start', 'trial_requested', 'trial_confirmed'];
 
@@ -35,6 +35,10 @@ function doPost(e) {
       clean_(d.referrer),
       clean_(d.page),
       clean_(d.username),
+      clean_(d.goal),
+      clean_(d.hardest),
+      clean_(d.years),
+      clean_(d.understanding),
     ]);
   } catch (err) {
     // Ignore bad requests; never break the landing page.
