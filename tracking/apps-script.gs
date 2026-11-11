@@ -15,8 +15,9 @@
 const SHEET_NAME = 'Tracking S.Club Funnel';
 // The tab is found by its ID first, so renaming it later doesn't break tracking.
 const SHEET_ID = 694894671;
-const HEADERS = ['time', 'event', 'button', 'source', 'visitor', 'lang', 'referrer', 'page'];
-const EVENTS = ['visit', 'cta_click'];
+const HEADERS = ['time', 'event', 'button', 'source', 'visitor', 'lang', 'referrer', 'page', 'username'];
+// visit, cta_click: from the landing page. bot_*/trial_*: from the ChatPlace Telegram bot.
+const EVENTS = ['visit', 'cta_click', 'bot_start', 'trial_requested', 'trial_confirmed'];
 
 function doPost(e) {
   const lock = LockService.getScriptLock();
@@ -33,6 +34,7 @@ function doPost(e) {
       clean_(d.lang),
       clean_(d.referrer),
       clean_(d.page),
+      clean_(d.username),
     ]);
   } catch (err) {
     // Ignore bad requests; never break the landing page.
@@ -60,6 +62,9 @@ function getSheet_() {
     sh = ss.insertSheet(SHEET_NAME);
     sh.appendRow(HEADERS);
     sh.setFrozenRows(1);
+  }
+  if (sh.getRange(1, HEADERS.length).getValue() !== HEADERS[HEADERS.length - 1]) {
+    sh.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
   }
   return sh;
 }
