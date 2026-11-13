@@ -1069,7 +1069,9 @@ h1 {
   /* Open the bot with the start link for this source, so ChatPlace knows where the person came from.
      These start links exist in ChatPlace (Growth tools → Referral links); anything else uses "site". */
   var BOT_SOURCES = ['ig-bio', 'ig-dm-keyword', 'ig-dm-follower'];
-  var botStart = BOT_SOURCES.indexOf(source) !== -1 ? source : 'site';
+  /* Older or untagged links that still clearly come from Instagram */
+  var ALIASES = { 'ig': 'ig-bio', 'l.chatplace.io': 'ig-dm-keyword' };
+  var botStart = ALIASES[source] || (BOT_SOURCES.indexOf(source) !== -1 ? source : 'site');
   Array.prototype.slice.call(document.querySelectorAll('a[href^="https://t.me/jannaspeaks_bot"]')).forEach(function (a) {
     a.href = 'https://t.me/jannaspeaks_bot?start=' + botStart;
   });
